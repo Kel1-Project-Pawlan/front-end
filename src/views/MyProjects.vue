@@ -26,30 +26,41 @@
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div v-for="idea in myIdeas" :key="idea.id" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative group">
-          <div class="flex justify-between items-start mb-4">
-            <h3 class="text-xl font-bold text-slate-800 line-clamp-1 pr-10">
-              <router-link :to="`/idea/${idea.id}`" class="hover:text-primary transition-colors">{{ idea.title }}</router-link>
-            </h3>
-            <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-indigo-50 text-primary border border-indigo-100">
-              {{ idea.status || 'Open' }}
-            </span>
+        <div v-for="idea in myIdeas" :key="idea.id" class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md group">
+          <div v-if="getIdeaImageUrl(idea.image)" class="h-40 bg-slate-100">
+            <img
+              :src="getIdeaImageUrl(idea.image)"
+              :alt="`${idea.title} cover image`"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            >
           </div>
-          
-          <p class="text-sm text-slate-500 line-clamp-2 mb-6 h-10">{{ idea.description }}</p>
-          
-          <div class="flex items-center justify-between border-t border-slate-100 pt-4">
-            <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-              Created recently
+
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-bold text-slate-800 line-clamp-1 pr-10">
+                <router-link :to="`/idea/${idea.id}`" class="hover:text-primary transition-colors">{{ idea.title }}</router-link>
+              </h3>
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-indigo-50 text-primary border border-indigo-100">
+                {{ idea.status || 'Open' }}
+              </span>
             </div>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button @click="openEditModal(idea)" class="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-slate-50" title="Edit">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-              </button>
-              <button @click="confirmDeleteIdea(idea.id)" class="text-slate-400 hover:text-danger transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Delete">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-              </button>
+            
+            <p class="text-sm text-slate-500 line-clamp-2 mb-6 h-10">{{ idea.description }}</p>
+            
+            <div class="flex items-center justify-between border-t border-slate-100 pt-4">
+              <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                Created recently
+              </div>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button @click="openEditModal(idea)" class="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-slate-50" title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                </button>
+                <button @click="confirmDeleteIdea(idea.id)" class="text-slate-400 hover:text-danger transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -83,6 +94,7 @@ import { useAuthStore } from '../store/auth'
 import api from '../services/api'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import ProjectFormModal from '../components/ProjectFormModal.vue'
+import { getIdeaImageUrl } from '../utils/imageUrl'
 
 const authStore = useAuthStore()
 

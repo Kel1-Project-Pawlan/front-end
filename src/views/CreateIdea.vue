@@ -35,6 +35,63 @@
         </div>
 
         <div>
+          <label class="mb-2 block text-sm font-semibold text-slate-700">Project Cover Image</label>
+          <input
+            ref="imageInputRef"
+            type="file"
+            accept="image/jpeg,image/png"
+            class="sr-only"
+            @change="handleImageChange"
+          >
+
+          <div
+            v-if="!imagePreviewUrl"
+            class="flex min-h-48 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center transition-colors hover:border-primary/60 hover:bg-primary/5"
+            @click="openImagePicker"
+          >
+            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m17 8-5-5-5 5" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12" />
+              </svg>
+            </div>
+            <p class="text-sm font-bold text-slate-800">Upload a cover image</p>
+            <p class="mt-1 text-sm text-slate-500">JPG or PNG, max 2MB</p>
+          </div>
+
+          <div v-else class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div class="h-56 bg-slate-100">
+              <img :src="imagePreviewUrl" alt="Project cover preview" class="h-full w-full object-cover">
+            </div>
+            <div class="flex flex-col gap-3 border-t border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0">
+                <p class="truncate text-sm font-semibold text-slate-800">{{ selectedImage?.name }}</p>
+                <p class="text-xs font-medium text-slate-500">JPG or PNG, max 2MB</p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="rounded-lg px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+                  @click="openImagePicker"
+                >
+                  Change
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg px-3 py-2 text-sm font-semibold text-danger transition-colors hover:bg-red-50"
+                  @click="removeImage"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p v-if="imageError" class="mt-2 text-sm font-medium text-danger">{{ imageError }}</p>
+        </div>
+
+        <div>
           <label for="whatsapp_link" class="mb-2 block text-sm font-semibold text-slate-700">WhatsApp Group Link</label>
           <input
             id="whatsapp_link"
@@ -70,25 +127,91 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
+
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png']
 
 const router = useRouter()
 const loading = ref(false)
 const error = ref('')
+const imageError = ref('')
+const selectedImage = ref(null)
+const imagePreviewUrl = ref('')
+const imageInputRef = ref(null)
 const formData = ref({
   title: '',
   description: '',
   whatsapp_link: '',
 })
 
+const openImagePicker = () => {
+  imageInputRef.value?.click()
+}
+
+const clearPreviewUrl = () => {
+  if (imagePreviewUrl.value) {
+    URL.revokeObjectURL(imagePreviewUrl.value)
+    imagePreviewUrl.value = ''
+  }
+}
+
+const removeImage = () => {
+  selectedImage.value = null
+  imageError.value = ''
+  clearPreviewUrl()
+
+  if (imageInputRef.value) {
+    imageInputRef.value.value = ''
+  }
+}
+
+const handleImageChange = (event) => {
+  const file = event.target.files?.[0]
+  imageError.value = ''
+
+  if (!file) return
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    removeImage()
+    imageError.value = 'Please upload a JPG or PNG image.'
+    return
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    removeImage()
+    imageError.value = 'Image must be 2MB or smaller.'
+    return
+  }
+
+  clearPreviewUrl()
+  selectedImage.value = file
+  imagePreviewUrl.value = URL.createObjectURL(file)
+}
+
+const buildRequestData = () => {
+  const payload = new FormData()
+  payload.append('title', formData.value.title)
+  payload.append('description', formData.value.description)
+  payload.append('whatsapp_link', formData.value.whatsapp_link || '')
+
+  if (selectedImage.value) {
+    payload.append('image', selectedImage.value)
+  }
+
+  return payload
+}
+
 const submitIdea = async () => {
+  if (imageError.value) return
+
   loading.value = true
   error.value = ''
 
   try {
-    await api.post('/ideas', formData.value)
+    await api.post('/ideas', buildRequestData())
     router.push('/my-projects')
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to post idea.'
@@ -96,4 +219,6 @@ const submitIdea = async () => {
     loading.value = false
   }
 }
+
+onUnmounted(clearPreviewUrl)
 </script>

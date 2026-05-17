@@ -13,27 +13,37 @@
     </div>
 
     <div v-else-if="idea" class="space-y-6">
-      <div class="glass-card p-8">
-        <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-          <h1 class="text-3xl font-extrabold text-slate-800">{{ idea.title }}</h1>
-          <span class="px-3 py-1 font-semibold rounded-full bg-primary/10 text-primary whitespace-nowrap border border-primary/20">
-            {{ idea.status || 'Open' }}
-          </span>
+      <div class="glass-card overflow-hidden">
+        <div v-if="getIdeaImageUrl(idea.image)" class="h-72 bg-slate-100 sm:h-80">
+          <img
+            :src="getIdeaImageUrl(idea.image)"
+            :alt="`${idea.title} cover image`"
+            class="h-full w-full object-cover"
+          >
         </div>
 
-        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-200">
-          <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 border border-slate-300">
-            {{ getInitials(idea.user?.name || 'User') }}
+        <div class="p-8">
+          <div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+            <h1 class="text-3xl font-extrabold text-slate-800">{{ idea.title }}</h1>
+            <span class="px-3 py-1 font-semibold rounded-full bg-primary/10 text-primary whitespace-nowrap border border-primary/20">
+              {{ idea.status || 'Open' }}
+            </span>
           </div>
-          <div>
-            <p class="text-slate-800 font-bold">{{ idea.user?.name || 'Anonymous' }}</p>
-            <p class="text-slate-500 text-sm">Project Creator</p>
-          </div>
-        </div>
 
-        <div class="max-w-none">
-          <h3 class="text-xl font-bold text-slate-800 mb-4">Project Description</h3>
-          <p class="text-slate-600 whitespace-pre-line leading-relaxed">{{ idea.description }}</p>
+          <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-200">
+            <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 border border-slate-300">
+              {{ getInitials(idea.user?.name || 'User') }}
+            </div>
+            <div>
+              <p class="text-slate-800 font-bold">{{ idea.user?.name || 'Anonymous' }}</p>
+              <p class="text-slate-500 text-sm">Project Creator</p>
+            </div>
+          </div>
+
+          <div class="max-w-none">
+            <h3 class="text-xl font-bold text-slate-800 mb-4">Project Description</h3>
+            <p class="text-slate-600 whitespace-pre-line leading-relaxed">{{ idea.description }}</p>
+          </div>
         </div>
       </div>
 
@@ -109,6 +119,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import api from '../services/api'
 import JoinProjectModal from '../components/JoinProjectModal.vue'
+import { getIdeaImageUrl } from '../utils/imageUrl'
 
 const route = useRoute()
 const router = useRouter()

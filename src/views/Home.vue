@@ -39,30 +39,41 @@
       <div 
         v-for="idea in ideas" 
         :key="idea.id" 
-        class="glass-card p-6 flex flex-col hover:border-primary/50 transition-colors group cursor-pointer"
+        class="glass-card flex flex-col overflow-hidden hover:border-primary/50 transition-colors group cursor-pointer"
         @click="router.push(`/idea/${idea.id}`)"
       >
-        <div class="flex justify-between items-start mb-4">
-          <h3 class="text-xl font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2">{{ idea.title }}</h3>
-          <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary whitespace-nowrap border border-primary/20">
-            {{ idea.status || 'Open' }}
-          </span>
+        <div v-if="getIdeaImageUrl(idea.image)" class="h-44 bg-slate-100">
+          <img
+            :src="getIdeaImageUrl(idea.image)"
+            :alt="`${idea.title} cover image`"
+            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          >
         </div>
-        
-        <p class="text-slate-600 text-sm mb-6 flex-grow line-clamp-3">
-          {{ idea.description }}
-        </p>
 
-        <div class="flex items-center justify-between border-t border-slate-200 pt-4 mt-auto">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-bold text-slate-600 border border-slate-300">
-              {{ getInitials(idea.user?.name || 'User') }}
-            </div>
-            <span class="text-sm font-medium text-slate-700 truncate max-w-[120px]">{{ idea.user?.name || 'Anonymous' }}</span>
+        <div class="flex flex-grow flex-col p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-xl font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2">{{ idea.title }}</h3>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary whitespace-nowrap border border-primary/20">
+              {{ idea.status || 'Open' }}
+            </span>
           </div>
-          <router-link :to="`/idea/${idea.id}`" class="text-sm text-primary hover:text-orange-500 font-semibold">
-            View Details &rarr;
-          </router-link>
+          
+          <p class="text-slate-600 text-sm mb-6 flex-grow line-clamp-3">
+            {{ idea.description }}
+          </p>
+
+          <div class="flex items-center justify-between border-t border-slate-200 pt-4 mt-auto">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-bold text-slate-600 border border-slate-300">
+                {{ getInitials(idea.user?.name || 'User') }}
+              </div>
+              <span class="text-sm font-medium text-slate-700 truncate max-w-[120px]">{{ idea.user?.name || 'Anonymous' }}</span>
+            </div>
+            <router-link :to="`/idea/${idea.id}`" class="text-sm text-primary hover:text-orange-500 font-semibold">
+              View Details &rarr;
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -82,6 +93,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import api from '../services/api'
+import { getIdeaImageUrl } from '../utils/imageUrl'
 
 const router = useRouter()
 const authStore = useAuthStore()
