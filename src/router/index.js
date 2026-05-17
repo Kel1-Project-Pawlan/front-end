@@ -8,6 +8,7 @@ import IdeaDetail from '../views/IdeaDetail.vue'
 import MyProjects from '../views/MyProjects.vue'
 import Notification from '../views/Notification.vue'
 import EditProfile from '../views/EditProfile.vue'
+import CreateIdea from '../views/CreateIdea.vue'
 
 const routes = [
   {
@@ -42,6 +43,18 @@ const routes = [
     path: '/notifications',
     name: 'Notifications',
     component: Notification,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/requests',
+    name: 'Requests',
+    component: Notification,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/create-idea',
+    name: 'CreateIdea',
+    component: CreateIdea,
     meta: { requiresAuth: true }
   },
   {
