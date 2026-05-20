@@ -58,6 +58,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/edit-idea/:id',
+    name: 'EditIdea',
+    component: CreateIdea,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/edit-profile',
     name: 'EditProfile',
     component: EditProfile,

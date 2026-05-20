@@ -37,6 +37,7 @@
         </router-link>
 
         <router-link
+          v-if="ctaLink"
           :to="ctaLink.to"
           class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primaryHover hover:shadow-md hover:shadow-primary/30 active:scale-95"
         >
@@ -143,6 +144,7 @@
           </router-link>
 
           <router-link
+            v-if="ctaLink"
             :to="ctaLink.to"
             class="mt-2 rounded-full bg-primary px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primaryHover"
             @click="closeMenus"
@@ -208,7 +210,7 @@ const mobileItems = computed(() => {
 
 const ctaLink = computed(() => (
   authStore.isAuthenticated
-    ? { label: 'Post Idea', to: '/create-idea' }
+    ? null
     : { label: 'Start a Project', to: '/register' }
 ))
 

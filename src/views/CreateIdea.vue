@@ -1,8 +1,8 @@
 <template>
   <div class="mx-auto max-w-2xl">
     <div class="mb-8">
-      <p class="mb-2 text-sm font-bold uppercase tracking-wide text-primary">Post Idea</p>
-      <h1 class="text-3xl font-extrabold text-slate-900">Start a collaborative project</h1>
+      <p class="mb-2 text-sm font-bold uppercase tracking-wide text-primary">{{ isEditing ? 'Edit Project' : 'Post Idea' }}</p>
+      <h1 class="text-3xl font-extrabold text-slate-900">{{ isEditing ? 'Edit your collaborative project' : 'Start a collaborative project' }}</h1>
       <p class="mt-3 text-slate-500">
         Share the project goal, context, and invite link so collaborators can understand where they can help.
       </p>
@@ -119,7 +119,7 @@
           class="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/20 transition-all hover:bg-primaryHover hover:shadow-md hover:shadow-primary/30 disabled:cursor-not-allowed disabled:opacity-70"
           :disabled="loading"
         >
-          {{ loading ? 'Posting...' : 'Post Idea' }}
+          {{ loading ? (isEditing ? 'Saving...' : 'Posting...') : (isEditing ? 'Save Changes' : 'Post Idea') }}
         </button>
       </div>
     </form>
@@ -127,15 +127,18 @@
 </template>
 
 <script setup>
-import { onUnmounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../services/api'
+import { getIdeaImageUrl } from '../utils/imageUrl'
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png']
 
+const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
+const fetching = ref(false)
 const error = ref('')
 const imageError = ref('')
 const selectedImage = ref(null)
@@ -145,6 +148,29 @@ const formData = ref({
   title: '',
   description: '',
   whatsapp_link: '',
+})
+
+const isEditing = computed(() => !!route.params.id)
+
+onMounted(async () => {
+  if (isEditing.value) {
+    fetching.value = true
+    try {
+      const response = await api.get(`/ideas/${route.params.id}`)
+      const idea = response.data.data || response.data
+      formData.value.title = idea.title
+      formData.value.description = idea.description
+      formData.value.whatsapp_link = idea.whatsapp_link || ''
+      if (idea.image) {
+        imagePreviewUrl.value = getIdeaImageUrl(idea.image)
+      }
+    } catch (err) {
+      error.value = 'Failed to load project details.'
+      console.error(err)
+    } finally {
+      fetching.value = false
+    }
+  }
 })
 
 const openImagePicker = () => {
@@ -211,10 +237,21 @@ const submitIdea = async () => {
   error.value = ''
 
   try {
-    await api.post('/ideas', buildRequestData())
+    const data = buildRequestData()
+    if (isEditing.value) {
+      if (data.has('image')) {
+        // Laravel needs _method=PUT to handle parsing Multipart form data correctly for updates
+        data.append('_method', 'PUT')
+        await api.post(`/ideas/${route.params.id}`, data)
+      } else {
+        await api.put(`/ideas/${route.params.id}`, formData.value)
+      }
+    } else {
+      await api.post('/ideas', data)
+    }
     router.push('/my-projects')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Failed to post idea.'
+    error.value = err.response?.data?.message || 'Failed to save project.'
   } finally {
     loading.value = false
   }

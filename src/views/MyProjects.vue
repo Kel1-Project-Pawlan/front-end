@@ -5,10 +5,10 @@
         <h1 class="text-3xl font-bold text-slate-800 mb-2">My Projects</h1>
         <p class="text-slate-500">Manage your projects and ideas here.</p>
       </div>
-      <button @click="openCreateModal" class="bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm shadow-primary/30 flex items-center gap-2">
+      <router-link to="/create-idea" class="bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm shadow-primary/30 flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
         New Project
-      </button>
+      </router-link>
     </div>
 
     <div>
@@ -22,7 +22,7 @@
         </div>
         <h3 class="text-lg font-bold text-slate-800 mb-2">No projects yet</h3>
         <p class="text-slate-500 mb-6">You haven't created any collaborative projects.</p>
-        <button @click="openCreateModal" class="text-primary font-medium hover:text-primaryHover transition-colors">Create your first project →</button>
+        <router-link to="/create-idea" class="text-primary font-medium hover:text-primaryHover transition-colors">Create your first project →</router-link>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -54,9 +54,9 @@
                 Created recently
               </div>
               <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button @click="openEditModal(idea)" class="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-slate-50" title="Edit">
+                <router-link :to="`/edit-idea/${idea.id}`" class="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-slate-50" title="Edit">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-                </button>
+                </router-link>
                 <button @click="confirmDeleteIdea(idea.id)" class="text-slate-400 hover:text-danger transition-colors p-1.5 rounded-lg hover:bg-red-50" title="Delete">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                 </button>
@@ -66,17 +66,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Create / Edit Idea Modal -->
-    <ProjectFormModal 
-      :show="showCreateModal" 
-      :is-editing="isEditing" 
-      :initial-data="newIdea"
-      :loading="creatingIdea"
-      :error="createError"
-      @close="showCreateModal = false" 
-      @submit="submitIdea" 
-    />
 
     <!-- Confirmation Modal -->
     <ConfirmModal 
@@ -93,24 +82,12 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../store/auth'
 import api from '../services/api'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import ProjectFormModal from '../components/ProjectFormModal.vue'
 import { getIdeaImageUrl } from '../utils/imageUrl'
 
 const authStore = useAuthStore()
 
 const myIdeas = ref([])
 const loading = ref(true)
-
-const showCreateModal = ref(false)
-const isEditing = ref(false)
-const editingIdeaId = ref(null)
-const creatingIdea = ref(false)
-const createError = ref('')
-const newIdea = ref({
-  title: '',
-  description: '',
-  whatsapp_link: ''
-})
 
 const showConfirmModal = ref(false)
 const confirmModalConfig = ref({
@@ -132,51 +109,6 @@ const fetchMyIdeas = async () => {
     console.error('Failed to load my ideas', err)
   } finally {
     loading.value = false
-  }
-}
-
-const openCreateModal = () => {
-  isEditing.value = false
-  editingIdeaId.value = null
-  newIdea.value = { title: '', description: '', whatsapp_link: '' }
-  createError.value = ''
-  showCreateModal.value = true
-}
-
-const openEditModal = (idea) => {
-  isEditing.value = true
-  editingIdeaId.value = idea.id
-  newIdea.value = {
-    title: idea.title,
-    description: idea.description,
-    whatsapp_link: idea.whatsapp_link || ''
-  }
-  createError.value = ''
-  showCreateModal.value = true
-}
-
-const submitIdea = async (formData) => {
-  creatingIdea.value = true
-  createError.value = ''
-  try {
-    if (isEditing.value) {
-      const response = await api.put(`/ideas/${editingIdeaId.value}`, formData)
-      const updatedIdea = response.data.data || response.data
-      const index = myIdeas.value.findIndex(i => i.id === editingIdeaId.value)
-      if (index !== -1) {
-        myIdeas.value[index] = updatedIdea
-      }
-    } else {
-      const response = await api.post('/ideas', formData)
-      myIdeas.value.unshift(response.data.data || response.data)
-    }
-    showCreateModal.value = false
-    isEditing.value = false
-    editingIdeaId.value = null
-  } catch (err) {
-    createError.value = err.response?.data?.message || 'Failed to save idea.'
-  } finally {
-    creatingIdea.value = false
   }
 }
 

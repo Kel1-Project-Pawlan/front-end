@@ -1,15 +1,15 @@
 <template>
   <div class="max-w-4xl mx-auto">
     <div class="mb-10 text-center">
-      <h1 class="text-3xl font-bold text-slate-800 mb-2">Notifications</h1>
+      <h1 class="mb-2 text-3xl font-bold text-slate-800">Request</h1>
       <p class="text-slate-500">Review incoming requests and track the ones you've sent.</p>
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col min-h-[500px]">
-      <div class="flex border-b border-slate-200 px-6">
+      <div class="flex px-6 border-b border-slate-200">
         <button 
           @click="activeTab = 'inbox'" 
-          class="flex-1 py-4 text-sm font-semibold transition-colors relative focus:outline-none flex items-center justify-center gap-2"
+          class="relative flex items-center justify-center flex-1 gap-2 py-4 text-sm font-semibold transition-colors focus:outline-none"
           :class="activeTab === 'inbox' ? 'text-primary' : 'text-slate-500 hover:text-slate-800'"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z"></path><path d="m4 6 8 5 8-5"></path></svg>
@@ -19,7 +19,7 @@
         </button>
         <button 
           @click="activeTab = 'sent'" 
-          class="flex-1 py-4 text-sm font-semibold transition-colors relative focus:outline-none flex items-center justify-center gap-2"
+          class="relative flex items-center justify-center flex-1 gap-2 py-4 text-sm font-semibold transition-colors focus:outline-none"
           :class="activeTab === 'sent' ? 'text-primary' : 'text-slate-500 hover:text-slate-800'"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
@@ -29,24 +29,24 @@
         </button>
       </div>
       
-      <div class="p-8 flex-grow overflow-y-auto custom-scrollbar bg-slate-50/50">
+      <div class="flex-grow p-8 overflow-y-auto custom-scrollbar bg-slate-50/50">
         <!-- Loading State -->
         <div v-if="loadingRequests" class="flex justify-center py-20">
-          <div class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+          <div class="w-8 h-8 border-4 rounded-full animate-spin border-primary border-t-transparent"></div>
         </div>
 
         <!-- Inbox Tab -->
         <template v-else-if="activeTab === 'inbox'">
-          <div v-if="myRequests.length === 0" class="text-center py-20">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-            <h3 class="text-lg font-bold text-slate-800 mb-1">No incoming requests</h3>
-            <p class="text-sm text-slate-500 font-medium">Join requests on your projects will appear here</p>
+          <div v-if="myRequests.length === 0" class="py-20 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            <h3 class="mb-1 text-lg font-bold text-slate-800">No incoming requests</h3>
+            <p class="text-sm font-medium text-slate-500">Join requests on your projects will appear here</p>
           </div>
-          <div v-else class="space-y-4 max-w-2xl mx-auto">
-            <div v-for="req in myRequests" :key="req.id" class="p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-              <div class="flex justify-between items-start mb-3">
+          <div v-else class="max-w-2xl mx-auto space-y-4">
+            <div v-for="req in myRequests" :key="req.id" class="p-5 transition-shadow bg-white border shadow-sm rounded-xl border-slate-200 hover:shadow-md">
+              <div class="flex items-start justify-between mb-3">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-indigo-50 text-primary flex items-center justify-center font-bold text-sm">
+                  <div class="flex items-center justify-center w-10 h-10 text-sm font-bold rounded-full bg-indigo-50 text-primary">
                     {{ getInitials(req.user?.name || 'User') }}
                   </div>
                   <div>
@@ -55,7 +55,7 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
-                  <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider"
+                  <span class="px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full"
                         :class="{
                           'bg-yellow-100 text-yellow-700': req.status === 'pending',
                           'bg-emerald-100 text-emerald-700': req.status === 'accepted',
@@ -63,13 +63,13 @@
                         }">
                     {{ req.status }}
                   </span>
-                  <button @click="confirmDeleteRequest(req.id, 'inbox')" class="text-slate-400 hover:text-danger transition-colors p-1" title="Delete Request">
+                  <button @click="confirmDeleteRequest(req.id, 'inbox')" class="p-1 transition-colors text-slate-400 hover:text-danger" title="Delete Request">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                   </button>
                 </div>
               </div>
               
-              <div v-if="req.message" class="text-sm text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-100 mb-4 mt-2">
+              <div v-if="req.message" class="p-4 mt-2 mb-4 text-sm border rounded-lg text-slate-600 bg-slate-50 border-slate-100">
                 "{{ req.message }}"
               </div>
               
@@ -87,20 +87,20 @@
 
         <!-- Sent Tab -->
         <template v-else-if="activeTab === 'sent'">
-          <div v-if="mySentRequests.length === 0" class="text-center py-20">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-            <h3 class="text-lg font-bold text-slate-800 mb-1">No sent requests</h3>
-            <p class="text-sm text-slate-500 font-medium">Requests you send to join projects will appear here</p>
+          <div v-if="mySentRequests.length === 0" class="py-20 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            <h3 class="mb-1 text-lg font-bold text-slate-800">No sent requests</h3>
+            <p class="text-sm font-medium text-slate-500">Requests you send to join projects will appear here</p>
           </div>
-          <div v-else class="space-y-4 max-w-2xl mx-auto">
-            <div v-for="req in mySentRequests" :key="req.id" class="p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-              <div class="flex justify-between items-center mb-3">
+          <div v-else class="max-w-2xl mx-auto space-y-4">
+            <div v-for="req in mySentRequests" :key="req.id" class="p-5 transition-shadow bg-white border shadow-sm rounded-xl border-slate-200 hover:shadow-md">
+              <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary flex items-center justify-center">
+                  <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                   </div>
                   <div>
-                    <h4 class="font-bold text-slate-800 text-lg">{{ req.idea?.title }}</h4>
+                    <h4 class="text-lg font-bold text-slate-800">{{ req.idea?.title }}</h4>
                     <p class="text-sm text-slate-500">Project by: <span class="font-medium text-slate-700">{{ req.idea?.user?.name }}</span></p>
                   </div>
                 </div>
@@ -113,7 +113,7 @@
                         }">
                     {{ req.status }}
                   </span>
-                  <button @click="confirmDeleteRequest(req.id, 'sent')" class="text-slate-400 hover:text-danger transition-colors p-2 hover:bg-red-50 rounded-lg" title="Delete Request">
+                  <button @click="confirmDeleteRequest(req.id, 'sent')" class="p-2 transition-colors rounded-lg text-slate-400 hover:text-danger hover:bg-red-50" title="Delete Request">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                   </button>
                 </div>
