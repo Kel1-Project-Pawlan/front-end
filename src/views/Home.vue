@@ -23,15 +23,7 @@
           class="input-field w-full"
         />
       </div>
-<<<<<<< HEAD
-      <router-link
-        v-if="authStore.isAuthenticated"
-        to="/my-projects"
-        class="bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm whitespace-nowrap"
-      >
-=======
       <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-projects" class="bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm whitespace-nowrap">
->>>>>>> 50df9761276502b40ed4888c09caef022d02c63d
         + Create New Idea
       </router-link>
     </div>
@@ -98,14 +90,6 @@
                 >{{ idea.user?.name || "Anonymous" }}</span
               >
             </div>
-<<<<<<< HEAD
-            <router-link
-              :to="`/idea/${idea.id}`"
-              class="text-sm text-primary hover:text-orange-500 font-semibold"
-            >
-              View Details &rarr;
-            </router-link>
-=======
             
             <div class="flex items-center gap-2">
               <!-- Admin Actions -->
@@ -122,13 +106,10 @@
                 View Details &rarr;
               </router-link>
             </div>
->>>>>>> 50df9761276502b40ed4888c09caef022d02c63d
           </div>
         </div>
       </div>
     </div>
-<<<<<<< HEAD
-=======
     
     <!-- Confirmation Modal -->
     <ConfirmModal 
@@ -137,7 +118,6 @@
       @close="showConfirmModal = false" 
       @confirm="confirmModalConfig.action" 
     />
->>>>>>> 50df9761276502b40ed4888c09caef022d02c63d
 
     <!-- Empty State -->
     <div
@@ -157,20 +137,12 @@
 </template>
 
 <script setup>
-<<<<<<< HEAD
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthStore } from "../store/auth";
-import api from "../services/api";
-import { getIdeaImageUrl } from "../utils/imageUrl";
-=======
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import api from '../services/api'
 import { getIdeaImageUrl } from '../utils/imageUrl'
 import ConfirmModal from '../components/ConfirmModal.vue'
->>>>>>> 50df9761276502b40ed4888c09caef022d02c63d
 
 const router = useRouter();
 const authStore = useAuthStore();
