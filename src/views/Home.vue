@@ -18,7 +18,7 @@
           class="input-field w-full"
         >
       </div>
-      <router-link v-if="authStore.isAuthenticated" to="/my-projects" class="bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm whitespace-nowrap">
+      <router-link v-if="authStore.isAuthenticated && authStore.user?.role !== 'admin'" to="/my-projects" class="bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm whitespace-nowrap">
         + Create New Idea
       </router-link>
     </div>
@@ -70,14 +70,35 @@
               </div>
               <span class="text-sm font-medium text-slate-700 truncate max-w-[120px]">{{ idea.user?.name || 'Anonymous' }}</span>
             </div>
-            <router-link :to="`/idea/${idea.id}`" class="text-sm text-primary hover:text-orange-500 font-semibold">
-              View Details &rarr;
-            </router-link>
+            
+            <div class="flex items-center gap-2">
+              <!-- Admin Actions -->
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mr-2" v-if="authStore.user?.role === 'admin'" @click.stop>
+                <router-link :to="`/edit-idea/${idea.id}`" class="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-slate-50" title="Admin Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                </router-link>
+                <button @click="confirmDeleteIdea(idea.id)" class="text-slate-400 hover:text-danger hover:bg-red-50 rounded-lg transition-colors p-1.5" title="Admin Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                </button>
+              </div>
+
+              <router-link :to="`/idea/${idea.id}`" class="text-sm text-primary hover:text-orange-500 font-semibold">
+                View Details &rarr;
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
     </div>
     
+    <!-- Confirmation Modal -->
+    <ConfirmModal 
+      :show="showConfirmModal" 
+      :config="confirmModalConfig" 
+      @close="showConfirmModal = false" 
+      @confirm="confirmModalConfig.action" 
+    />
+
     <!-- Empty State -->
     <div v-if="!loading && !error && ideas.length === 0" class="text-center py-20 glass-card">
       <p class="text-slate-500 mb-4">No project ideas found.</p>
@@ -94,6 +115,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import api from '../services/api'
 import { getIdeaImageUrl } from '../utils/imageUrl'
+import ConfirmModal from '../components/ConfirmModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -101,6 +123,16 @@ const authStore = useAuthStore()
 const ideas = ref([])
 const loading = ref(true)
 const error = ref('')
+
+const showConfirmModal = ref(false)
+const confirmModalConfig = ref({
+  title: '',
+  message: '',
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
+  action: null,
+  isDestructive: true
+})
 
 const fetchIdeas = async () => {
   loading.value = true
@@ -115,6 +147,27 @@ const fetchIdeas = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const confirmDeleteIdea = (id) => {
+  confirmModalConfig.value = {
+    title: 'Admin Delete Project',
+    message: 'Are you sure you want to permanently delete this project? This action cannot be undone and you are performing this as an Admin.',
+    confirmText: 'Delete Project',
+    cancelText: 'Cancel',
+    action: async () => {
+      try {
+        await api.delete(`/ideas/${id}`)
+        ideas.value = ideas.value.filter(idea => idea.id !== id)
+        showConfirmModal.value = false
+      } catch (err) {
+        alert('Failed to delete idea.')
+        console.error(err)
+      }
+    },
+    isDestructive: true
+  }
+  showConfirmModal.value = true
 }
 
 const getInitials = (name) => {
