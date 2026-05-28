@@ -78,6 +78,7 @@
               </div>
 
               <router-link
+                v-if="authStore.user?.role !== 'admin'"
                 to="/edit-profile"
                 class="mt-1 flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary"
                 @click="closeMenus"
@@ -157,6 +158,14 @@
               <p class="truncate text-sm font-bold text-slate-900">{{ authStore.user?.name || 'Member User' }}</p>
               <p class="truncate text-xs font-medium text-slate-500">{{ authStore.user?.email || 'member@kolabora.test' }}</p>
             </div>
+            <router-link
+              v-if="authStore.user?.role !== 'admin'"
+              to="/edit-profile"
+              class="w-full flex items-center justify-start rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              @click="closeMenus"
+            >
+              Edit Profile
+            </router-link>
             <button
               type="button"
               class="w-full rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-danger transition-colors hover:bg-red-50"
@@ -185,6 +194,11 @@ const profileDropdownRef = ref(null)
 
 const navItems = computed(() => {
   if (authStore.isAuthenticated) {
+    if (authStore.user?.role === 'admin') {
+      return [
+        { label: 'Explore Ideas', to: '/' },
+      ]
+    }
     return [
       { label: 'Explore Ideas', to: '/' },
       { label: 'My Ideas', to: '/my-projects' },

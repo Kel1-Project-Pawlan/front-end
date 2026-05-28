@@ -162,10 +162,19 @@ const fetchMyRequests = async () => {
   try {
     const response = await api.get('/requests')
     const allRequests = response.data.data || response.data
-    // Only show requests for ideas owned by the current user (incoming)
-    myRequests.value = allRequests.filter(req => req.idea?.user_id === authStore.user?.id)
-    // Show requests created by the current user (outgoing)
-    mySentRequests.value = allRequests.filter(req => req.user_id === authStore.user?.id)
+    
+    if (authStore.user?.role === 'admin') {
+      // Admin sees everything
+      myRequests.value = allRequests.filter(req => req.idea?.user_id === authStore.user?.id || req.user_id !== authStore.user?.id)
+      // For simplicity in Admin view, we can separate inbox as "Incoming to Admin" and "All System Requests"
+      // But based on prompt, let's just show everything in inbox if Admin
+      myRequests.value = allRequests
+      mySentRequests.value = allRequests.filter(req => req.user_id === authStore.user?.id)
+    } else {
+      // Regular user sees only their own
+      myRequests.value = allRequests.filter(req => req.idea?.user_id === authStore.user?.id)
+      mySentRequests.value = allRequests.filter(req => req.user_id === authStore.user?.id)
+    }
   } catch (err) {
     console.error('Failed to load requests', err)
   } finally {
