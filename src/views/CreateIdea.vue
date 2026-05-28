@@ -240,7 +240,6 @@ const submitIdea = async () => {
     const data = buildRequestData()
     if (isEditing.value) {
       if (data.has('image')) {
-        // Laravel needs _method=PUT to handle parsing Multipart form data correctly for updates
         data.append('_method', 'PUT')
         await api.post(`/ideas/${route.params.id}`, data)
       } else {

@@ -43,7 +43,7 @@
               </h3>
               <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-indigo-50 text-primary border border-indigo-100">
                 {{ idea.status || 'Open' }}
-              </span>
+              </span>neq
             </div>
             
             <p class="text-sm text-slate-500 line-clamp-2 mb-6 h-10">{{ idea.description }}</p>
